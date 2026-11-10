@@ -1,0 +1,17 @@
+{
+  "description": "Spout2 texture sharing: send an Fbo to, or receive a texture from, other apps on the same PC (Resolume, TouchDesigner, OBS, media servers)",
+  "author": "icq4ever <icq4ever@gmail.com>",
+  "license": "MIT",
+  "category": "bridges",
+  "keywords": [
+    "spout",
+    "spout2",
+    "texture sharing",
+    "directx",
+    "d3d11",
+    "interop"
+  ],
+  "platforms": [
+    "windows"
+  ]
+}
