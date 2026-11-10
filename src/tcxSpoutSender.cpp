@@ -63,8 +63,19 @@ bool Sender::setup(const std::string& name) {
         logError("tcxSpout") << "could not open Spout on the Direct3D 11 device";
         return false;
     }
+    // A sender that crashed or was killed leaves its name in Spout's list
+    // while any other Spout app (the receiver) keeps the list alive.
+    // SetSenderName() would then pick "name_1" and only clean up afterwards,
+    // so a restarted app would no longer match what the receiver was set to.
+    // Drop such orphans first.
+    impl_->dx.sendernames.CleanSenders();
     impl_->dx.SetSenderName(name.c_str());
-    impl_->name = name;
+    // The name actually registered: still "name_1" if a live sender holds the name
+    impl_->name = impl_->dx.GetName();
+    if (impl_->name != name) {
+        logWarning("tcxSpout") << "a sender named \"" << name << "\" is already running; sending as \""
+                               << impl_->name << "\"";
+    }
     impl_->open = true;
     impl_->frames = 0;
     impl_->width = impl_->height = 0;
@@ -72,7 +83,7 @@ bool Sender::setup(const std::string& name) {
     Impl* impl = impl_.get();
     impl_->afterFrame = events().afterFrame.listen([impl] { impl->flush(); });
 
-    logNotice("tcxSpout") << "sender \"" << name << "\" ready";
+    logNotice("tcxSpout") << "sender \"" << impl_->name << "\" ready";
     return true;
 }
 
